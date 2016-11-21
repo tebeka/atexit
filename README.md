@@ -33,4 +33,4 @@ Contact
 =======
 
 * [Home](https://github.com/tebeka/atexit)
-* [Author](miki.tebeka@gmail.com)
+* [Author](mailto:miki.tebeka@gmail.com)
