@@ -31,8 +31,6 @@ program (that is, if you want the `atexit` handlers to execute).
 
 Contact
 =======
-Home
-    https://github.com/tebeka/atexit
 
-Author
-    Miki Tebeka <miki.tebeka@gmail.com>
+* [Home](https://github.com/tebeka/atexit)
+* [Author](miki.tebeka@gmail.com)
