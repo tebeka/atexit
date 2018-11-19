@@ -17,6 +17,11 @@ func TestRegister(t *testing.T) {
 }
 
 func TestHandler(t *testing.T) {
+	err := exec.Command("go", "install").Run()
+	if err != nil {
+		t.Fatalf("can't install - %s", err)
+	}
+
 	gofile := "/tmp/atexit-testprog.go"
 	if err := ioutil.WriteFile(gofile, testprog, 0666); err != nil {
 		t.Fatalf("can't create go file")
@@ -25,7 +30,7 @@ func TestHandler(t *testing.T) {
 	outfile := "/tmp/atexit-testprog.out"
 	os.Remove(outfile) // Ignore error since might not be there
 	arg := time.Now().UTC().String()
-	err := exec.Command("go", "run", gofile, outfile, arg).Run()
+	err = exec.Command("go", "run", gofile, outfile, arg).Run()
 	if err == nil {
 		t.Fatalf("completed normally, should have failed")
 	}
