@@ -40,6 +40,7 @@ const (
 
 var handlers = []func(){}
 var handlersLock sync.RWMutex
+var once sync.Once
 
 func runHandler(handler func()) {
 	defer func() {
@@ -51,12 +52,16 @@ func runHandler(handler func()) {
 	handler()
 }
 
-func runHandlers() {
+func executeHandlers() {
 	handlersLock.RLock()
 	defer handlersLock.RUnlock()
 	for _, handler := range handlers {
 		runHandler(handler)
 	}
+}
+
+func runHandlers() {
+	once.Do(executeHandlers)
 }
 
 // Exit runs all the atexit handlers and then terminates the program using
