@@ -30,14 +30,16 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 )
 
 const (
 	// Version is package version
-	Version = "0.1.0"
+	Version = "0.2.0"
 )
 
 var handlers = []func(){}
+var handlersLock sync.RWMutex
 
 func runHandler(handler func()) {
 	defer func() {
@@ -50,6 +52,8 @@ func runHandler(handler func()) {
 }
 
 func runHandlers() {
+	handlersLock.RLock()
+	defer handlersLock.RUnlock()
 	for _, handler := range handlers {
 		runHandler(handler)
 	}
@@ -85,5 +89,7 @@ func Fatalln(v ...interface{}) {
 
 // Register adds a handler, call atexit.Exit to invoke all handlers.
 func Register(handler func()) {
+	handlersLock.Lock()
+	defer handlersLock.Unlock()
 	handlers = append(handlers, handler)
 }
