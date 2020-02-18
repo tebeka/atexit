@@ -31,12 +31,12 @@ func TestHandler(t *testing.T) {
 		t.Fatalf("can't install - %s", err)
 	}
 
-	gofile := "atexit-testprog.go"
+	gofile := "./testprog/atexit-testprog.go"
 	if err := ioutil.WriteFile(gofile, testprog, 0666); err != nil {
 		t.Fatalf("can't create go file")
 	}
 
-	outfile := "atexit-testprog.out"
+	outfile := "./testprog/atexit-testprog.out"
 	_ = os.Remove(outfile) // Ignore error since might not be there
 	arg := time.Now().UTC().String()
 	err = exec.Command("go", "run", gofile, outfile, arg).Run()

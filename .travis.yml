@@ -1,3 +1,5 @@
+before_install:
+  - mkdir testprog
 language: go
 go:
   - "1.11"
