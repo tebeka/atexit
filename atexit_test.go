@@ -1,7 +1,6 @@
 package atexit
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -32,12 +31,12 @@ func TestHandler(t *testing.T) {
 		t.Fatalf("can't install - %s", err)
 	}
 
-	gofile := "/tmp/atexit-testprog.go"
+	gofile := "atexit-testprog.go"
 	if err := ioutil.WriteFile(gofile, testprog, 0666); err != nil {
 		t.Fatalf("can't create go file")
 	}
 
-	outfile := "/tmp/atexit-testprog.out"
+	outfile := "atexit-testprog.out"
 	_ = os.Remove(outfile) // Ignore error since might not be there
 	arg := time.Now().UTC().String()
 	err = exec.Command("go", "run", gofile, outfile, arg).Run()
@@ -47,7 +46,6 @@ func TestHandler(t *testing.T) {
 
 	data, err := ioutil.ReadFile(outfile)
 	if err != nil {
-		fmt.Println(err)
 		t.Fatalf("can't read output file %s", outfile)
 	}
 
