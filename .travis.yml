@@ -1,5 +1,3 @@
-before_install:
-  - mkdir /tmp
 language: go
 go:
   - "1.11"
