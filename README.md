@@ -1,6 +1,6 @@
 # About
 
-[![Build Status](https://travis-ci.org/tebeka/atexit.svg?branch=master)](https://travis-ci.org/tebeka/atexit)
+[![Build Status](https://travis-ci.org/aureolebigben/atexit.svg?branch=master)](https://travis-ci.org/aureolebigben/atexit)
 
 Simple `atexit` implementation for [Go](https://golang.org).
 
