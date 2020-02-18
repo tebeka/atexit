@@ -4,6 +4,8 @@
 
 Simple `atexit` implementation for [Go](https://golang.org).
 
+You can unregister a handler with the Unregister method.
+
 Note that you *have* to call `atexit.Exit` and not `os.Exit` to terminate your
 program (that is, if you want the `atexit` handlers to execute).
 
@@ -22,9 +24,15 @@ func handler() {
     fmt.Println("Exiting")
 }
 
+func fooHandler() {
+    fmt.Println("not called")
+}
+
 func main() {
-	atexit.Register(handler)
-	atexit.Exit(0)
+    _ = atexit.Register(handler)
+    fooId := atexit.Register(fooHandler)
+    atexit.Unregister(fooId)
+    atexit.Exit(0)
 }
 ```
 
