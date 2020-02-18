@@ -1,6 +1,7 @@
 package atexit
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -46,6 +47,7 @@ func TestHandler(t *testing.T) {
 
 	data, err := ioutil.ReadFile(outfile)
 	if err != nil {
+		fmt.Println(err)
 		t.Fatalf("can't read output file %s", outfile)
 	}
 
