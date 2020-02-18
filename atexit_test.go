@@ -1,6 +1,7 @@
 package atexit
 
 import (
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -40,6 +41,7 @@ func TestHandler(t *testing.T) {
 	_ = os.Remove(outfile) // Ignore error since might not be there
 	arg := time.Now().UTC().String()
 	err = exec.Command("go", "run", gofile, outfile, arg).Run()
+	fmt.Println(err)
 	if err == nil {
 		t.Fatalf("completed normally, should have failed")
 	}
