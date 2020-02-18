@@ -66,7 +66,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/tebeka/atexit"
+	"github.com/aureolebigben/atexit"
 )
 
 var outfile = ""
