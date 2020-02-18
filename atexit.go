@@ -35,17 +35,28 @@ import (
 
 const (
 	// Version is package version
-	Version = "0.2.0"
+	Version = "0.3.0"
 )
 
-var handlers = []func(){}
+type HandlerId uint
+
+func (h *HandlerId) Get() HandlerId {
+	defer func() {
+		*h++
+	}()
+
+	return *h
+}
+
+var handlers = map[HandlerId]func(){}
 var handlersLock sync.RWMutex
 var once sync.Once
+var nextFuncId HandlerId
 
 func runHandler(handler func()) {
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Fprintln(os.Stderr, "error: atexit handler error:", err)
+			_, _ = fmt.Fprintln(os.Stderr, "error: atexit handler error:", err)
 		}
 	}()
 
@@ -92,9 +103,21 @@ func Fatalln(v ...interface{}) {
 	log.Fatalln(v...)
 }
 
-// Register adds a handler, call atexit.Exit to invoke all handlers.
-func Register(handler func()) {
+// Register adds a handler and return the handler's id,
+// call atexit.Exit to invoke all handlers.
+func Register(handler func()) HandlerId {
 	handlersLock.Lock()
 	defer handlersLock.Unlock()
-	handlers = append(handlers, handler)
+
+	currentId := nextFuncId.Get()
+	handlers[currentId] = handler
+
+	return currentId
+}
+
+// Unregister remove a handler
+func Unregister(id HandlerId) {
+	handlersLock.Lock()
+	defer handlersLock.Unlock()
+	delete(handlers, id)
 }

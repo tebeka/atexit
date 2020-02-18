@@ -15,7 +15,7 @@ package main
 import (
     "fmt"
 
-    "github.com/tebeka/atexit"
+    "github.com/aureolebigben/atexit"
 )
 
 func handler() {
@@ -30,10 +30,10 @@ func main() {
 
 # Install
 
-    go get github.com/tebeka/atexit
+    go get github.com/aureolebigben/atexit
 
 Contact
 =======
 
-* [Home](https://github.com/tebeka/atexit)
-* [Author](mailto:miki.tebeka@gmail.com)
+* [Home](https://github.com/aureolebigben/atexit)
+* [Author of fork](mailto:aureolebigben@gmail.com)
