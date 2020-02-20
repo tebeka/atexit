@@ -1,51 +1,62 @@
 package atexit
 
 import (
+	"fmt"
 	"io/ioutil"
-	"os"
 	"os/exec"
+	"path"
+	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestRegister(t *testing.T) {
+	require := require.New(t)
 	current := len(handlers)
 	Register(func() {})
-	if len(handlers) != current+1 {
-		t.Fatalf("can't add handler")
-	}
+	require.Equal(current+1, len(handlers), "register")
+}
+
+func TestCancel(t *testing.T) {
+	require := require.New(t)
+
+	id := Register(func() {})
+	id.Cancel()
+	_, ok := handlers[id]
+	require.False(ok, "cancel")
 }
 
 func TestHandler(t *testing.T) {
-	err := exec.Command("go", "install").Run()
-	if err != nil {
-		t.Fatalf("can't install - %s", err)
-	}
+	require := require.New(t)
+	root, err := ioutil.TempDir("", "atexit-test")
+	require.NoError(err, "TempDir")
 
-	gofile := "/tmp/atexit-testprog.go"
-	if err := ioutil.WriteFile(gofile, testprog, 0666); err != nil {
-		t.Fatalf("can't create go file")
-	}
+	progFile := path.Join(root, "main.go")
+	err = ioutil.WriteFile(progFile, []byte(testprog), 0666)
+	require.NoError(err, "prog")
 
-	outfile := "/tmp/atexit-testprog.out"
-	os.Remove(outfile) // Ignore error since might not be there
+	here, err := filepath.Abs(".")
+	require.NoError(err, "abs .")
+
+	mod := fmt.Sprintf(modTmpl, here)
+	modFile := path.Join(root, "go.mod")
+	err = ioutil.WriteFile(modFile, []byte(mod), 0666)
+	require.NoError(err, "mod")
+	outFile := path.Join(root, "main.out")
+
 	arg := time.Now().UTC().String()
-	err = exec.Command("go", "run", gofile, outfile, arg).Run()
-	if err == nil {
-		t.Fatalf("completed normally, should have failed")
-	}
+	err = exec.Command("go", "run", progFile, outFile, arg).Run()
+	require.Error(err, "run")
 
-	data, err := ioutil.ReadFile(outfile)
-	if err != nil {
-		t.Fatalf("can't read output file %s", outfile)
-	}
-
-	if string(data) != arg {
-		t.Fatalf("bad data")
-	}
+	data, err := ioutil.ReadFile(outFile)
+	require.NoError(err, "read out")
+	require.Equal(arg, string(data), "output")
 }
 
-var testprog = []byte(`
+var (
+	testprog = `
 // Test program for atexit, gets output file and data as arguments and writes
 // data to output file in atexit handler.
 package main
@@ -70,13 +81,27 @@ func badHandler() {
 	fmt.Println(1/n)
 }
 
+func unusedHandler() {
+	ioutil.WriteFile(outfile, []byte("\nunused"), 0666)
+}
+
 func main() {
 	flag.Parse()
 	outfile = flag.Arg(0)
 	data = flag.Arg(1)
 
 	atexit.Register(handler)
+	id := atexit.Register(unusedHandler)
 	atexit.Register(badHandler)
+	id.Cancel()
 	atexit.Exit(1)
 }
-`)
+`
+	modTmpl = `
+module testexit
+
+go 1.13
+
+replace github.com/tebeka/atexit => %s
+`
+)
