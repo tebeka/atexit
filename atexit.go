@@ -35,33 +35,31 @@ import (
 
 const (
 	// Version is package version
-	Version = "0.2.0"
+	Version = "0.3.0"
 )
 
-var handlers = []func(){}
-var handlersLock sync.RWMutex
-var once sync.Once
+var (
+	handlers      = make(map[HandlerID]func())
+	nextHandlerID uint
+	handlersLock  sync.RWMutex // protects the above two
 
-func runHandler(handler func()) {
-	defer func() {
-		if err := recover(); err != nil {
-			fmt.Fprintln(os.Stderr, "error: atexit handler error:", err)
-		}
-	}()
+	once sync.Once
+)
 
-	handler()
-}
+type HandlerID uint
 
-func executeHandlers() {
-	handlersLock.RLock()
-	defer handlersLock.RUnlock()
-	for _, handler := range handlers {
-		runHandler(handler)
+// Cancel cancels the handler associated with id
+func (id HandlerID) Cancel() error {
+	handlersLock.Lock()
+	defer handlersLock.Unlock()
+
+	_, ok := handlers[id]
+	if !ok {
+		return fmt.Errorf("handler %d not found", id)
 	}
-}
 
-func runHandlers() {
-	once.Do(executeHandlers)
+	delete(handlers, id)
+	return nil
 }
 
 // Exit runs all the atexit handlers and then terminates the program using
@@ -93,8 +91,34 @@ func Fatalln(v ...interface{}) {
 }
 
 // Register adds a handler, call atexit.Exit to invoke all handlers.
-func Register(handler func()) {
+func Register(handler func()) HandlerID {
 	handlersLock.Lock()
 	defer handlersLock.Unlock()
-	handlers = append(handlers, handler)
+
+	nextHandlerID++
+	id := HandlerID(nextHandlerID)
+	handlers[id] = handler
+	return id
+}
+
+func runHandler(handler func()) {
+	defer func() {
+		if err := recover(); err != nil {
+			fmt.Fprintln(os.Stderr, "error: atexit handler error:", err)
+		}
+	}()
+
+	handler()
+}
+
+func executeHandlers() {
+	handlersLock.RLock()
+	defer handlersLock.RUnlock()
+	for _, handler := range handlers {
+		runHandler(handler)
+	}
+}
+
+func runHandlers() {
+	once.Do(executeHandlers)
 }
