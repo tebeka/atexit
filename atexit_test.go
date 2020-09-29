@@ -23,7 +23,7 @@ func TestCancel(t *testing.T) {
 	require := require.New(t)
 
 	id := Register(func() {})
-	id.Cancel()
+	require.NoError(id.Cancel())
 	_, ok := handlers[id]
 	require.False(ok, "cancel")
 }
