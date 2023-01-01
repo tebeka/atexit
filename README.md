@@ -1,8 +1,7 @@
-# About
+# atexit - Simple `atexit` implementation for Go
 
-[![Build Status](https://travis-ci.org/tebeka/atexit.svg?branch=master)](https://travis-ci.org/tebeka/atexit)
+[![CI](https://github.com/tebeka/atexit/actions/workflows/go.yml/badge.svg)](https://github.com/tebeka/atexit/actions/workflows/go.yml)
 
-Simple `atexit` implementation for [Go](https://golang.org).
 
 Note that you *have* to call `atexit.Exit` and not `os.Exit` to terminate your
 program (that is, if you want the `atexit` handlers to execute).
